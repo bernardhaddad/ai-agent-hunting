@@ -1,0 +1,28 @@
+title: Claude Code User-Writable Policy Key Modified
+id: a4f19f8d-e75b-4219-8777-eaebcf531bf0
+status: experimental
+description: |
+  Detects writes to HKCU\SOFTWARE\Policies\ClaudeCode. Claude Code reads this key as policy
+  when no admin policy (server-managed, HKLM/MDM or managed-settings.json) is present, and
+  Anthropic documents it as user-writable. On unmanaged machines it is a place to plant
+  settings such as hooks or permission changes.
+references:
+  - https://code.claude.com/docs/en/managed-settings
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.persistence
+  - attack.defense-evasion
+  - attack.t1112
+logsource:
+  category: registry_set
+  product: windows
+detection:
+  selection:
+    TargetObject|contains: '\SOFTWARE\Policies\ClaudeCode'
+  filter_hklm:
+    TargetObject|startswith: 'HKLM\'
+  condition: selection and not filter_hklm
+falsepositives:
+  - Organisations that deliberately deploy Claude Code policy through HKCU.
+level: medium

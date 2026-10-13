@@ -1,0 +1,35 @@
+title: Defender Exclusion Added For An AI Agent Folder
+id: e6e8a48f-dfd1-4136-bcad-ca3c403d3575
+status: experimental
+description: |
+  Detects a Microsoft Defender path exclusion covering an AI agent home folder. Hermes Agent's
+  README suggests excluding only %LOCALAPPDATA%\hermes\bin because its bundled uv.exe can be
+  flagged as a false positive; an exclusion of the whole agent home also covers its config,
+  secrets (.env), session database and skills.
+references:
+  - https://github.com/NousResearch/hermes-agent
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.defense-evasion
+  - attack.t1562.001
+logsource:
+  product: windows
+  service: windefend
+detection:
+  selection:
+    EventID: 5007
+    NewValue|contains: '\Windows Defender\Exclusions\Paths\'
+  agent_paths:
+    NewValue|contains:
+      - '\AppData\Local\hermes'
+      - '\.hermes'
+      - '\.claude'
+      - '\.cursor'
+      - '\.codex'
+      - '\.gemini'
+      - '\.copilot'
+  condition: selection and agent_paths
+falsepositives:
+  - Exclusions approved by IT for a managed agent deployment.
+level: high

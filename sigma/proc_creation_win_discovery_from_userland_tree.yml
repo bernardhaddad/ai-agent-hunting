@@ -1,0 +1,44 @@
+title: Discovery Utility Started From A Process Under AppData
+id: 671496f3-f281-42e4-8198-1a75af81b2e6
+name: discovery_from_userland_tree
+status: experimental
+description: |
+  Building block for the AI agent correlation rules. Detects host, user and network
+  discovery utilities whose parent runs from a user profile's AppData. Matches on the file
+  name only, so it also catches copies outside System32: in the Hermes Agent lab, whoami.exe
+  and hostname.exe ran from the agent's bundled Git for Windows (usr\bin), where rules keyed
+  on the System32 path, Microsoft signer or OriginalFileName stay silent.
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.discovery
+  - attack.t1033
+  - attack.t1082
+  - attack.t1016
+  - attack.t1057
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_parent:
+    ParentImage|contains: '\AppData\'
+  selection_child:
+    Image|endswith:
+      - '\whoami.exe'
+      - '\hostname.exe'
+      - '\ipconfig.exe'
+      - '\systeminfo.exe'
+      - '\tasklist.exe'
+      - '\net.exe'
+      - '\net1.exe'
+      - '\nltest.exe'
+      - '\quser.exe'
+      - '\qwinsta.exe'
+      - '\netstat.exe'
+      - '\arp.exe'
+      - '\route.exe'
+      - '\nslookup.exe'
+  condition: all of selection_*
+falsepositives:
+  - Per-user developer tools and installers that query host details
+level: low

@@ -1,0 +1,28 @@
+title: AI Agent Style Recon - Interpreter Shell And Discovery Together
+id: b39a4bca-0226-45a7-8299-d7f94d7a82bb
+status: experimental
+description: |
+  Detects the shape of an AI agent executing recon on request: a script interpreter under
+  AppData starts a shell and, within the same two minutes, a discovery utility runs from a process
+  under AppData on the same host. Agent-agnostic: no agent names, folders or hashes, and the
+  discovery leg matches bundled copies of whoami/hostname as well as System32. Fired on the
+  Hermes Agent lab on real 4688 events when whoami and ipconfig were sent from Telegram.
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.discovery
+  - attack.t1033
+  - attack.t1082
+  - attack.command-and-control
+  - attack.t1219
+correlation:
+  type: temporal
+  rules:
+    - userland_interpreter_spawns_shell
+    - discovery_from_userland_tree
+  group-by:
+    - Computer
+  timespan: 2m
+falsepositives:
+  - Developer tooling run from per-user interpreters that also queries host details
+level: high

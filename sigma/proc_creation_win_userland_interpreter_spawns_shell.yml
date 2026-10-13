@@ -1,0 +1,42 @@
+title: Script Interpreter Under AppData Spawns A Shell
+id: cd35628a-db4b-4602-8b7b-bbfa853b8d7a
+name: userland_interpreter_spawns_shell
+status: experimental
+description: |
+  Building block for the AI agent correlation rules. Detects a Python, Node, Bun or Deno
+  runtime that lives under a user profile's AppData starting a command shell. Self-installed
+  AI agents (Hermes Agent, and most agents installed with pip, npm or uv without admin
+  rights) run from an interpreter in AppData and execute tool calls through a shell. Not
+  tied to any agent's name or folder, so it survives renaming. Too common on developer
+  machines to alert on alone; the correlation rules raise it.
+references:
+  - https://hermes-agent.nousresearch.com/docs/user-guide/windows-native
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.execution
+  - attack.t1059
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_parent:
+    ParentImage|contains: '\AppData\'
+    ParentImage|endswith:
+      - '\python.exe'
+      - '\pythonw.exe'
+      - '\node.exe'
+      - '\bun.exe'
+      - '\deno.exe'
+  selection_child:
+    Image|endswith:
+      - '\bash.exe'
+      - '\sh.exe'
+      - '\cmd.exe'
+      - '\powershell.exe'
+      - '\pwsh.exe'
+  condition: all of selection_*
+falsepositives:
+  - pip, npm and other package managers running build or install scripts
+  - Developer tooling installed per user (nvm, pyenv, uv-managed Python)
+level: low

@@ -1,0 +1,29 @@
+title: Chat-Controlled Agent - Telegram Connection And Shell Execution
+id: 9c7ab2a0-0d44-46ce-b44c-673005da6ede
+status: experimental
+description: |
+  Detects a script interpreter under AppData talking to Telegram and, within five minutes on
+  the same host, a script interpreter under AppData starting a shell. Together these are the
+  signature of a chat-driven agent or bot acting on remote instructions, whatever it is
+  called. Requires Security 5156 (Audit Filtering Platform Connection) alongside 4688 with
+  command line. 5156 and 4688 record the process ID in different formats (decimal vs hex),
+  so this groups by host only; add a process join in your SIEM if it normalises PIDs.
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.command-and-control
+  - attack.t1102.002
+  - attack.t1219
+  - attack.execution
+  - attack.t1059
+correlation:
+  type: temporal
+  rules:
+    - userland_interpreter_telegram_connection
+    - userland_interpreter_spawns_shell
+  group-by:
+    - Computer
+  timespan: 5m
+falsepositives:
+  - Approved Telegram bots on developer machines
+level: high

@@ -1,0 +1,29 @@
+title: Startup Folder VBScript Launching A Second Script Host
+id: 180044fd-b343-489d-8656-4f0f85c62c73
+status: experimental
+description: |
+  Detects wscript.exe started by wscript.exe at logon, where the parent runs a .vbs from the
+  user's Startup folder. A two-stage hidden VBScript launch is a common loader pattern; it is
+  also how the Hermes Agent gateway persists when no scheduled task is registered.
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.persistence
+  - attack.t1547.001
+  - attack.execution
+  - attack.t1059.005
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    ParentImage|endswith: '\wscript.exe'
+    ParentCommandLine|contains: '\Start Menu\Programs\Startup\'
+    Image|endswith: '\wscript.exe'
+  condition: selection
+falsepositives:
+  - Login scripts that chain VBScript launchers.
+# Note: needs ParentCommandLine (Sysmon EID 1 or EDR process telemetry). Native Security 4688
+# does not record the parent command line; with 4688 only, match the child wscript.exe whose
+# parent is wscript.exe and correlate with the Startup-folder launch by time.
+level: medium

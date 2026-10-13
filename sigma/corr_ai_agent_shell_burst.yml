@@ -1,0 +1,26 @@
+title: Burst Of Processes From A Bundled POSIX Shell Under AppData
+id: 56403a51-6016-4f00-abd4-aec3a9303b4d
+status: experimental
+description: |
+  Detects ten or more processes started within one minute by the same bash.exe or sh.exe
+  path under AppData. In the Hermes Agent lab every chat message produced a burst of roughly
+  10 to 40 process creations under the agent's bundled Git Bash. Tune the threshold to your
+  baseline; interactive per-user Git Bash use rarely reaches it.
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.execution
+  - attack.t1059.004
+correlation:
+  type: event_count
+  rules:
+    - child_of_userland_posix_shell
+  group-by:
+    - Computer
+    - ParentImage
+  timespan: 1m
+  condition:
+    gte: 10
+falsepositives:
+  - Scripted builds run through a per-user Git Bash
+level: medium

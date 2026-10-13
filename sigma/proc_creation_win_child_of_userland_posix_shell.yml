@@ -1,0 +1,27 @@
+title: Process Started By A POSIX Shell Under AppData
+id: f8af0d8d-1b32-4eba-b331-db7601355d3b
+name: child_of_userland_posix_shell
+status: experimental
+description: |
+  Building block for the burst correlation rule. Detects any process whose parent is a
+  bash.exe or sh.exe located under a user profile's AppData, i.e. a bundled copy of Git for
+  Windows or MSYS2 rather than the machine-wide install in Program Files. Hermes Agent runs
+  every terminal tool call through such a copy.
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.execution
+  - attack.t1059.004
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    ParentImage|contains: '\AppData\'
+    ParentImage|endswith:
+      - '\bash.exe'
+      - '\sh.exe'
+  condition: selection
+falsepositives:
+  - Per-user Git for Windows installs used interactively
+level: informational

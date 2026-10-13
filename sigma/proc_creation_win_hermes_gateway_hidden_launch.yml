@@ -1,0 +1,31 @@
+title: Hermes Agent Gateway Launched Via VBScript
+id: 00b86456-d5ab-4266-9c4c-61c03427b008
+status: experimental
+description: |
+  Detects the Hermes Agent messaging gateway being started by wscript.exe. On Windows,
+  `hermes gateway install` registers a logon launcher (a scheduled task or, as a fallback, a
+  Startup-folder Hermes_Gateway.vbs) that runs the bundled python.exe hidden. The gateway is
+  the component that accepts commands from Telegram, Discord, Slack and other chat platforms.
+references:
+  - https://hermes-agent.nousresearch.com/docs/user-guide/windows-native
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.persistence
+  - attack.t1547.001
+  - attack.command-and-control
+  - attack.t1219
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_gateway:
+    ParentImage|endswith: '\wscript.exe'
+    CommandLine|contains: 'hermes_cli.main gateway run'
+  selection_launcher:
+    Image|endswith: '\wscript.exe'
+    CommandLine|contains: 'Hermes_Gateway.vbs'
+  condition: 1 of selection_*
+falsepositives:
+  - Hosts where the Hermes gateway is an approved, centrally managed service.
+level: medium

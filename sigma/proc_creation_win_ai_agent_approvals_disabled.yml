@@ -1,0 +1,31 @@
+title: AI Coding Agent Started With Approvals Disabled
+id: 0e4adb66-66d8-43c9-b80d-ca45d4c284d5
+status: experimental
+description: |
+  Detects AI coding agents launched with flags that skip human approval of tool calls:
+  Claude Code (--dangerously-skip-permissions, --permission-mode bypassPermissions),
+  GitHub Copilot CLI (--allow-all, --yolo) and Gemini CLI (--yolo, --approval-mode=yolo).
+references:
+  - https://code.claude.com/docs/en/permission-modes
+  - https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference
+  - https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/configuration.md
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.execution
+  - attack.t1059
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    CommandLine|contains:
+      - '--dangerously-skip-permissions'
+      - 'bypassPermissions'
+      - ' --yolo'
+      - ' --allow-all'
+      - '--approval-mode=yolo'
+  condition: selection
+falsepositives:
+  - Developers running agents in disposable containers or VMs as the vendors recommend.
+level: medium

@@ -1,0 +1,28 @@
+title: Command Executed By Hermes Agent Terminal Tool
+id: 7aed65c2-471f-47b8-b2f2-9e566b35baf6
+status: experimental
+description: |
+  Detects processes spawned by the Git Bash that Hermes Agent stages under its home folder.
+  Hermes runs every terminal tool call through this bash.exe, so discovery utilities such as
+  whoami.exe and hostname.exe resolve to the Git for Windows copies in usr\bin rather than
+  System32, and rules keyed on the Microsoft binary path or signer do not fire.
+references:
+  - https://hermes-agent.nousresearch.com/docs/user-guide/windows-native
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.execution
+  - attack.t1059
+  - attack.discovery
+  - attack.t1033
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    ParentImage|contains: '\AppData\Local\hermes\tools\'
+    ParentImage|endswith: '\bash.exe'
+  condition: selection
+falsepositives:
+  - Legitimate use of Hermes Agent. Baseline hosts where it is approved, then alert on the host list or on specific children.
+level: medium

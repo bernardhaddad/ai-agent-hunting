@@ -1,0 +1,53 @@
+title: Script Interpreter Under AppData Connects To Telegram
+id: 1f19388d-0f89-4cd1-9841-25ddc5e39f5d
+name: userland_interpreter_telegram_connection
+status: experimental
+description: |
+  Detects a Python, Node, Bun or Deno runtime under a user profile's AppData opening an
+  outbound connection to Telegram's published address ranges, using native Windows Filtering
+  Platform auditing (Security 5156) instead of Sysmon. Chat-driven AI agents such as Hermes
+  Agent hold a long-lived connection to the Telegram Bot API from their own interpreter.
+  5156 logs Application as a device path (\device\harddiskvolumeN\...), which the
+  contains match below handles. Requires "Audit Filtering Platform Connection" (Success).
+references:
+  - https://core.telegram.org/resources/cidr.txt
+author: Bernard Haddad
+date: 2026-10-13
+tags:
+  - attack.command-and-control
+  - attack.t1102.002
+logsource:
+  product: windows
+  service: security
+detection:
+  selection_event:
+    EventID: 5156
+    Direction: '%%14593'
+  selection_app:
+    Application|contains: '\AppData\'
+    Application|endswith:
+      - '\python.exe'
+      - '\pythonw.exe'
+      - '\node.exe'
+      - '\bun.exe'
+      - '\deno.exe'
+  selection_dest:
+    DestAddress|cidr:
+      - '91.105.192.0/23'
+      - '91.108.4.0/22'
+      - '91.108.8.0/22'
+      - '91.108.12.0/22'
+      - '91.108.16.0/22'
+      - '91.108.20.0/22'
+      - '91.108.56.0/22'
+      - '149.154.160.0/20'
+      - '185.76.151.0/24'
+      - '2001:b28:f23c::/48'
+      - '2001:b28:f23d::/48'
+      - '2001:b28:f23f::/48'
+      - '2001:67c:4e8::/48'
+      - '2a0a:f280::/32'
+  condition: all of selection_*
+falsepositives:
+  - Approved Telegram bots or integrations run by developers
+level: medium
