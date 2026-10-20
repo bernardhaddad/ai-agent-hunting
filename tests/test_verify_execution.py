@@ -1,4 +1,4 @@
-"""Tests for scripts/verify_execution.py against a mock state.db (no pySigma needed)."""
+# verify_execution.py against a fake state.db, no pysigma needed
 
 from __future__ import annotations
 

@@ -1,17 +1,10 @@
-"""Prove which agent tool calls actually executed, by joining Hermes state.db with 4688 events.
-
-Usage: python verify_execution.py STATE_DB EVENTS.jsonl [--window 60]
-
-A Hermes transcript is not proof of execution: the model can answer from memory without
-running anything. For every user message in state.db this prints the session's source
-and user ID, each command the agent ran for it, and whether a process creation for that
-command's program appears within --window seconds after the call in the exported events
-(scripts/export_lab_events.ps1). A message answered with no tool call at all is flagged:
-whatever the reply says, nothing was executed for it. Calls older than the first exported
-event are marked BEFORE EXPORT rather than NO PROCESS EVENT.
-
-Copy state.db with its -wal and -shm files first; this opens the copy read-only.
-"""
+# Which Hermes tool calls actually ran. Joins state.db with 4688 / Sysmon 1 events
+# exported by export_lab_events.ps1. The model sometimes answers without running anything,
+# so a transcript on its own doesn't prove execution.
+#
+#   python verify_execution.py state.db lab_events.jsonl [--window 60]
+#
+# Copy state.db with its -wal and -shm first, it's opened read-only.
 
 from __future__ import annotations
 
@@ -26,7 +19,6 @@ from pathlib import Path
 
 
 def _program(command: str) -> str:
-    """First program name in a shell command line, lowercased, without path or .exe."""
     first = re.split(r"[|;&]", command, maxsplit=1)[0].strip()
     try:
         token = shlex.split(first, posix=False)[0]
@@ -50,7 +42,6 @@ def _process_times(events_path: Path) -> list[tuple[float, str, str]]:
 
 
 def _prompt_text(content) -> str:
-    """The user's words, without the gateway's origin envelope that newer Hermes prepends."""
     text = str(content or "")
     if text.startswith("Gateway message origin"):
         lines = [line for line in text.splitlines() if line.strip()]
@@ -59,7 +50,6 @@ def _prompt_text(content) -> str:
 
 
 def load_turns(db: Path) -> list[dict]:
-    """One entry per user message: who sent it, and the commands the agent ran for it."""
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     con.row_factory = sqlite3.Row
     rows = con.execute(
@@ -96,7 +86,7 @@ def load_turns(db: Path) -> list[dict]:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap = argparse.ArgumentParser(description="check Hermes tool calls against process events")
     ap.add_argument("state_db", type=Path)
     ap.add_argument("events", type=Path)
     ap.add_argument(

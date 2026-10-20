@@ -1,15 +1,11 @@
-"""Write the replay fixtures: the Hermes lab modelled as events, and benign look-alikes.
-
-The lab fixture rebuilds the events seen in the Hermes Agent lab (see ../../README.md,
-Timeline). Lineage, paths, timings, the Telegram address and the order of events are taken
-from the lab's Security 4688, Defender 5007 and netstat output; host and user are renamed
-and the Python folder name is shortened. Two things are modelled, not observed:
-  - 5156 events: the lab had Filtering Platform auditing off; the connection itself
-    (bundled python.exe -> 149.154.166.110:443) was seen with netstat.
-  - burst-child-NN.exe: the lab showed 10 to 40 process creations under bash.exe per chat
-    message; only whoami, hostname, ipconfig and ls are named here, the rest are placeholders.
-For a real replay, export your own events with ../../scripts/export_lab_events.ps1.
-"""
+# Builds the replay fixtures: the Hermes lab as events, plus benign look-alikes.
+# Paths, parents, timings and the Telegram IP are from the lab (4688, Defender 5007, netstat),
+# host and user renamed. Two things are made up:
+#  - the 5156 events, Filtering Platform auditing was off in the lab. The connection
+#    (bundled python.exe -> 149.154.166.110:443) was seen with netstat.
+#  - burst-child-NN.exe. The lab had 10-40 processes under bash.exe per message, only
+#    whoami, hostname, ipconfig and ls are named here.
+# For real events use ../../scripts/export_lab_events.ps1.
 
 from __future__ import annotations
 
@@ -63,7 +59,6 @@ def defender(t, path):
 
 
 def chat_message(t0, command, image):
-    """One Telegram message: python -> bash -> the command, plus the rest of the burst."""
     hh, mm, ss = (int(x) for x in t0.split(":"))
     events = [proc(t0, GITBIN + r"\bash.exe", PY, f'"{GITBIN}\\bash.exe"')]
     events.append(

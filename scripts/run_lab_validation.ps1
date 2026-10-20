@@ -1,25 +1,9 @@
-<#
-.SYNOPSIS
-  One-shot validation of the Sigma rules against real events on the Hermes lab VM.
-.DESCRIPTION
-  Run elevated on the lab VM while the Hermes gateway is connected to your Telegram bot.
-    1. Enables Security 5156 auditing (Filtering Platform Connection) and checks 4688.
-    2. Checks the Hermes gateway is running.
-    3. Installs pySigma if needed.
-    4. Waits for you to send hostname, whoami and ipconfig /all to the bot.
-    5. Exports the events, collects Hermes triage, replays the events through every rule,
-       replays a copy with the agent renamed, runs the execution check and the unit tests.
-    6. Writes a PASS/FAIL summary and a shareable zip (no state.db, no .env values).
-  Lab use only. The audit policy change stays until you revert the VM snapshot.
-.PARAMETER OutDir
-  Results folder. Default C:\Lab\results
-.PARAMETER WaitMinutes
-  How long to wait for the Telegram commands. Default 15.
-.PARAMETER ReuseEvents
-  Skip waiting, exporting and triage; re-run the analysis on the events already in OutDir.
-.EXAMPLE
-  powershell -ExecutionPolicy Bypass -File .\scripts\run_lab_validation.ps1
-#>
+# Lab VM only, run elevated with the Hermes gateway connected to your bot.
+# Turns on 5156 + 4688 command line auditing, waits for you to send hostname, whoami and
+# ipconfig /all over Telegram, exports the events, runs triage, replays them through the
+# rules (and again with the agent renamed), runs verify_execution and the tests, then
+# zips the results without state.db or .env. -ReuseEvents skips the waiting part.
+# Revert the snapshot afterwards, the audit policy changes stay.
 param(
     [string]$OutDir = 'C:\Lab\results',
     [int]$WaitMinutes = 15,
@@ -38,10 +22,9 @@ $HermesRules = @(
     'Hermes Agent Gateway Launched Via VBScript'
 )
 
-function Step([string]$Text) { Write-Host "`n=== $Text" -ForegroundColor Cyan }
+function Step([string]$Text) { Write-Host "`n-- $Text" }
 
-# Run python without letting its stderr abort the script (Windows PowerShell 5.1 turns
-# native stderr into terminating errors under ErrorActionPreference=Stop).
+# PS 5.1 treats python's stderr as an error under Stop
 function Invoke-Py([string]$LogFile, [string[]]$PyArgs) {
     $old = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
@@ -56,7 +39,7 @@ if (-not $admin) { throw 'Run this from an elevated PowerShell (Run as administr
 New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
 $started = Get-Date
 
-Step '1/6 Audit policy'
+Step 'audit policy'
 auditpol /set /subcategory:"Filtering Platform Connection" /success:enable | Out-Null
 auditpol /set /subcategory:"Process Creation" /success:enable | Out-Null
 $cmdline = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit' -ErrorAction SilentlyContinue
@@ -66,7 +49,7 @@ if (-not $cmdline -or $cmdline.ProcessCreationIncludeCmdLine_Enabled -ne 1) {
 }
 auditpol /get /subcategory:"Filtering Platform Connection","Process Creation"
 
-Step '2/6 Hermes gateway'
+Step 'gateway'
 $gw = Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
     Where-Object { $_.CommandLine -match 'gateway run' -and $_.ExecutablePath -match '\\hermes\\' }
 if (-not $gw) {
@@ -82,11 +65,10 @@ if (-not $gw) {
 if (-not $gw) { throw 'Hermes gateway is not running. Sign out and back in, or start it, then rerun.' }
 Write-Host "Gateway PID $($gw.ProcessId): $($gw.ExecutablePath)"
 
-Step '3/6 Python and pySigma'
+Step 'pysigma'
 $py = (Get-Command python -ErrorAction SilentlyContinue).Source
 if (-not $py) { throw 'python not found on PATH.' }
-# -I (isolated): without it, the repo's own sigma\ rules folder shadows the pySigma package.
-# Native stderr must not abort the script here (Windows PowerShell 5.1), so relax errors.
+# -I or the sigma\ folder in this repo shadows the pysigma package
 $ErrorActionPreference = 'Continue'
 & $py -I -c "import sigma.collection" *> $null
 if ($LASTEXITCODE -ne 0) {
@@ -107,7 +89,7 @@ if ($ReuseEvents -and (Test-Path $events)) {
         if (Select-String -LiteralPath $events -SimpleMatch "\\$n" -Quiet) { $seen[$n] = $true }
     }
 } else {
-    Step "4/6 Send these to your Telegram bot now: hostname, whoami, ipconfig /all (waiting up to $WaitMinutes min)"
+    Step "send to the bot now: hostname, whoami, ipconfig /all (waiting up to $WaitMinutes min)"
     $wanted = @('hostname.exe', 'whoami.exe', 'ipconfig.exe')
     $deadline = (Get-Date).AddMinutes($WaitMinutes)
     while ((Get-Date) -lt $deadline -and $seen.Count -lt $wanted.Count) {
@@ -124,7 +106,7 @@ if ($ReuseEvents -and (Test-Path $events)) {
     if ($seen.Count -lt $wanted.Count) { Write-Warning 'Not all three commands were seen; continuing with what was captured.' }
     Start-Sleep -Seconds 30
 
-    Step '5/6 Export, triage, replay, verify, tests'
+    Step 'export, triage, replay'
     $hours = [math]::Ceiling(((Get-Date) - $started).TotalHours) + 1
     & (Join-Path $PSScriptRoot 'export_lab_events.ps1') -Hours $hours -OutFile $events
     & (Join-Path $PSScriptRoot 'hermes_triage.ps1') -OutDir (Join-Path $OutDir 'triage')
@@ -148,7 +130,7 @@ if (Test-Path $db) {
 }
 Invoke-Py (Join-Path $OutDir 'unit_tests.txt') @('-m', 'unittest', 'discover', '-s', (Join-Path $Root 'tests')) | Out-Null
 
-Step '6/6 Summary'
+Step 'summary'
 $r = Get-Content (Join-Path $OutDir 'replay.txt') -Raw
 $rr = Get-Content (Join-Path $OutDir 'replay_renamed.txt') -Raw
 $t = Get-Content (Join-Path $OutDir 'unit_tests.txt') -Raw

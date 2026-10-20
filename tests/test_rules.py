@@ -1,8 +1,5 @@
-"""Regression tests for the Sigma rules: run with `python -m unittest` from this folder.
-
-Requires pySigma (pip install pysigma). See fixtures/build_fixtures.py for what the
-fixtures model and what is observed vs modelled.
-"""
+# needs pysigma. python -m unittest discover -s tests
+# fixtures/build_fixtures.py says what is observed and what is modelled.
 
 from __future__ import annotations
 
@@ -36,7 +33,6 @@ BUILDING_BLOCKS = {
 
 
 def _renamed(events: list[dict]) -> list[dict]:
-    """The same intrusion with the agent's folder, module and launcher renamed."""
     text = json.dumps(events)
     for old, new in (
         (r"\\hermes", r"\\notes-sync"),

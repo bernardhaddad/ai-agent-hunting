@@ -1,19 +1,6 @@
-<#
-.SYNOPSIS
-  Exports the native Windows events the Sigma rules use, as JSONL for tests/replay.py.
-.DESCRIPTION
-  Reads Security 4688 (process creation) and 5156 (Filtering Platform connection),
-  Defender 5007 (configuration change) and, if installed, Sysmon 1, and writes one flat JSON
-  object per line with Sigma field names (Image, ParentImage, CommandLine, Application,
-  DestAddress, NewValue, ...). Run elevated; reading the Security log needs admin.
-.PARAMETER Hours
-  How far back to read. Default 24.
-.PARAMETER OutFile
-  Output path. Default .\lab_events.jsonl
-.EXAMPLE
-  .\export_lab_events.ps1 -Hours 48 -OutFile C:\Triage\lab_events.jsonl
-  python tests\replay.py C:\Triage\lab_events.jsonl
-#>
+# Exports 4688, 5156, Defender 5007 and Sysmon 1 (if there) as jsonl with Sigma field names,
+# for tests\replay.py. Needs admin for the Security log.
+#   .\export_lab_events.ps1 -Hours 48 -OutFile C:\Triage\lab_events.jsonl
 param(
     [int]$Hours = 24,
     [string]$OutFile = (Join-Path (Get-Location) 'lab_events.jsonl')

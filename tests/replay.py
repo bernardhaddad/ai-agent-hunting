@@ -1,15 +1,8 @@
-"""Replay Windows events (JSONL) through the Sigma rules in ../sigma, correlations included.
-
-Usage: python replay.py EVENTS.jsonl [--rules DIR]
-
-Each event is a flat JSON object using Sigma field names (Image, ParentImage, CommandLine,
-Application, DestAddress, NewValue, ...) plus EventID, Channel, Computer and TimeCreated
-(ISO 8601). scripts/export_lab_events.ps1 produces this format from a real host.
-
-The matcher implements what these rules use: field equality with wildcards (case
-insensitive), cidr, AND/OR/NOT, and the temporal and event_count correlation types with
-group-by and a sliding timespan. It is a test harness, not a SIEM.
-"""
+# Replays exported events (jsonl, Sigma field names) through the rules in ../sigma,
+# correlations too. Only handles what these rules use: wildcards, cidr, and/or/not,
+# temporal and event_count. Test harness, not a SIEM.
+#
+#   python replay.py lab_events.jsonl [--rules DIR]
 
 from __future__ import annotations
 
@@ -110,7 +103,6 @@ def _ts(event: dict) -> float:
 
 
 def _windows(times: list[float], span: float):
-    """Yield (start, end) index pairs of maximal windows no longer than span seconds."""
     j = 0
     for i in range(len(times)):
         while times[i] - times[j] > span:
@@ -121,7 +113,6 @@ def _windows(times: list[float], span: float):
 def evaluate_correlation(
     corr: SigmaCorrelationRule, hits: dict[str, list[dict]]
 ) -> list[dict]:
-    """Return one alert per group key that satisfies the correlation at least once."""
     span = corr.timespan.seconds
     names = [r.rule.name if hasattr(r, "rule") else r.reference for r in corr.rules]
     grouped: dict[tuple, list[tuple[float, str]]] = defaultdict(list)
@@ -157,7 +148,6 @@ def evaluate_correlation(
 
 
 def run(events: list[dict], rules_dir: Path = RULES_DIR) -> dict[str, list]:
-    """Return {rule title: [matching events or correlation alerts]} for every rule that fired."""
     col = SigmaCollection.load_ruleset([rules_dir])
     col.resolve_rule_references()
     rules = [r for r in col.rules if isinstance(r, SigmaRule)]
@@ -193,7 +183,7 @@ def load_events(path: Path) -> list[dict]:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap = argparse.ArgumentParser(description="replay events through the sigma rules")
     ap.add_argument("events", type=Path)
     ap.add_argument("--rules", type=Path, default=RULES_DIR)
     args = ap.parse_args()

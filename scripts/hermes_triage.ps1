@@ -1,18 +1,6 @@
-<#
-.SYNOPSIS
-  Collects Hermes Agent artifacts from a Windows host for triage.
-.DESCRIPTION
-  Copies the files an analyst needs (config, scheduled jobs, launchers, logs, the session
-  database with its WAL/SHM files) into an output folder, and writes a summary of the
-  approval settings, Defender exclusions and gateway state. Secrets in .env are NOT copied;
-  only the variable names are recorded.
-.PARAMETER HermesHome
-  Hermes home folder. Defaults to $env:HERMES_HOME, then %LOCALAPPDATA%\hermes.
-.PARAMETER OutDir
-  Where to write the collection.
-.EXAMPLE
-  .\hermes_triage.ps1 -OutDir C:\Triage\hermes
-#>
+# Copies Hermes Agent files for triage (config, cron jobs, launchers, logs, state.db with
+# -wal/-shm) and writes summary.txt. Only the variable names from .env, not the values.
+#   .\hermes_triage.ps1 -OutDir C:\Triage\hermes
 param(
     [string]$HermesHome = $(if ($env:HERMES_HOME) { $env:HERMES_HOME } else { Join-Path $env:LOCALAPPDATA 'hermes' }),
     [string]$OutDir = (Join-Path $env:PUBLIC "hermes_triage_$(Get-Date -Format yyyyMMdd_HHmmss)")
