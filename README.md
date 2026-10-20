@@ -17,8 +17,9 @@ Worth collecting:
 - `~/.claude/projects/<project>/<session>.jsonl` - every tool call and its output, plaintext
 - `~/.claude/history.jsonl` - every prompt with timestamp, not cleaned up by default
 - terminal sessions are deleted after 30 days by default, Desktop/Cowork ones are kept
-  unless `desktopSessionCleanupPeriodDays` is set
-- Desktop's files are under `AppData\Local\Packages\Claude_pzs8sxrjxfjjc\`, not `%APPDATA%`
+  on current versions unless `desktopSessionCleanupPeriodDays` is set
+- Desktop (MSIX install) keeps its files under `AppData\Local\Packages\Claude_pzs8sxrjxfjjc\`,
+  not `%APPDATA%`
 - `HKCU\SOFTWARE\Policies\ClaudeCode` is read when there's no admin policy, and users can
   write to it
 
@@ -63,5 +64,3 @@ Hermes-named rules didn't.
   requests actually ran
 - `scripts/hermes_triage.ps1` - collects the Hermes files (not the .env values)
 - `scripts/run_lab_validation.ps1` - all of the above in one go on a lab VM
-
-Rules are DRL 1.1, everything else MIT.
