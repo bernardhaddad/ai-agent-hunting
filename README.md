@@ -14,14 +14,23 @@ documented as something you set yourself for token login. Good for attribution, 
 prompt-injected command inherits them too.
 
 Worth collecting:
-- `~/.claude/projects/<project>/<session>.jsonl` - every tool call and its output, plaintext
-- `~/.claude/history.jsonl` - every prompt with timestamp, not cleaned up by default
+- `~/.claude/projects/<project>/<session>.jsonl` - every tool call and its output, plaintext.
+  Desktop sessions land here too. The one from the lab also had the signed-in email (session
+  context entry) and the account and org UUIDs (in `cwd` on every line), and Desktop's project
+  folder name carries both UUIDs, so the folder name alone points to the account.
+  `last-prompt` and `cost-state` entries give the last prompt, the model, cost and duration
+- `~/.claude/history.jsonl` - every prompt typed in the terminal with timestamp, not cleaned
+  up by default
+- `%LOCALAPPDATA%\Temp\claude\...` - output of commands the agent ran in the background
 - terminal sessions are deleted after 30 days by default, Desktop/Cowork ones are kept
   on current versions unless `desktopSessionCleanupPeriodDays` is set
 - Desktop (MSIX install) keeps its files under `AppData\Local\Packages\Claude_pzs8sxrjxfjjc\`,
   not `%APPDATA%`
 - `HKCU\SOFTWARE\Policies\ClaudeCode` is read when there's no admin policy, and users can
   write to it
+- hooks in `.claude/settings.json` (and `~/.cursor/hooks.json` for Cursor) and MCP servers
+  in `claude_desktop_config.json` are commands the agent starts by itself, on its events or
+  when Desktop launches. New entries there are worth a look. No rule for this one yet
 
 ## Hermes Agent driven from Telegram
 
