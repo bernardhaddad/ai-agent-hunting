@@ -9,6 +9,7 @@ description: |
   and hostname.exe ran from the agent's bundled Git for Windows (usr\bin), where rules keyed
   on the System32 path, Microsoft signer or OriginalFileName stay silent.
 author: Bernard Haddad
+license: DRL-1.1
 date: 2026-10-13
 tags:
   - attack.discovery

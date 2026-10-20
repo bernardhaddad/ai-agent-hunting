@@ -7,6 +7,7 @@ description: |
   10 to 40 process creations under the agent's bundled Git Bash. Tune the threshold to your
   baseline; interactive per-user Git Bash use rarely reaches it.
 author: Bernard Haddad
+license: DRL-1.1
 date: 2026-10-13
 tags:
   - attack.execution

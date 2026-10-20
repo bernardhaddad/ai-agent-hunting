@@ -8,6 +8,7 @@ description: |
   Windows or MSYS2 rather than the machine-wide install in Program Files. Hermes Agent runs
   every terminal tool call through such a copy.
 author: Bernard Haddad
+license: DRL-1.1
 date: 2026-10-13
 tags:
   - attack.execution

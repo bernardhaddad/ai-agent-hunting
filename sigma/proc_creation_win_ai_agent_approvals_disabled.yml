@@ -10,6 +10,7 @@ references:
   - https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference
   - https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/configuration.md
 author: Bernard Haddad
+license: DRL-1.1
 date: 2026-10-13
 tags:
   - attack.execution

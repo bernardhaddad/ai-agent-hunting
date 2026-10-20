@@ -9,6 +9,7 @@ description: |
 references:
   - https://hermes-agent.nousresearch.com/docs/user-guide/windows-native
 author: Bernard Haddad
+license: DRL-1.1
 date: 2026-10-13
 tags:
   - attack.execution

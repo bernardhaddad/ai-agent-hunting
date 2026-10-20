@@ -12,6 +12,7 @@ description: |
 references:
   - https://core.telegram.org/resources/cidr.txt
 author: Bernard Haddad
+license: DRL-1.1
 date: 2026-10-13
 tags:
   - attack.command-and-control

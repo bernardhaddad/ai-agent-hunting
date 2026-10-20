@@ -9,6 +9,7 @@ description: |
 references:
   - https://github.com/NousResearch/hermes-agent
 author: Bernard Haddad
+license: DRL-1.1
 date: 2026-10-13
 tags:
   - attack.defense-evasion

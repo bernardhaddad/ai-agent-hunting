@@ -6,6 +6,7 @@ description: |
   user's Startup folder. A two-stage hidden VBScript launch is a common loader pattern; it is
   also how the Hermes Agent gateway persists when no scheduled task is registered.
 author: Bernard Haddad
+license: DRL-1.1
 date: 2026-10-13
 tags:
   - attack.persistence

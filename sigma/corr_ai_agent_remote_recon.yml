@@ -8,6 +8,7 @@ description: |
   discovery leg matches bundled copies of whoami/hostname as well as System32. Fired on the
   Hermes Agent lab on real 4688 events when whoami and ipconfig were sent from Telegram.
 author: Bernard Haddad
+license: DRL-1.1
 date: 2026-10-13
 tags:
   - attack.discovery

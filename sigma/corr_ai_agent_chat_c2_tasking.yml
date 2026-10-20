@@ -9,6 +9,7 @@ description: |
   command line. 5156 and 4688 record the process ID in different formats (decimal vs hex),
   so this groups by host only; add a process join in your SIEM if it normalises PIDs.
 author: Bernard Haddad
+license: DRL-1.1
 date: 2026-10-13
 tags:
   - attack.command-and-control

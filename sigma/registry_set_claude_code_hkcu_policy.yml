@@ -9,6 +9,7 @@ description: |
 references:
   - https://code.claude.com/docs/en/managed-settings
 author: Bernard Haddad
+license: DRL-1.1
 date: 2026-10-13
 tags:
   - attack.persistence
