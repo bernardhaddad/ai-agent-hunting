@@ -9,13 +9,15 @@ not in the vendor docs can change between releases.
 A shell spawned by Claude Desktop (2.31226.1) had these in its environment:
 `CLAUDECODE=1`, `CLAUDE_CODE_SESSION_ID`, `CLAUDE_CODE_ENTRYPOINT=claude-desktop`,
 `CLAUDE_CODE_USER_EMAIL`, `CLAUDE_CODE_ORGANIZATION_UUID`, `CLAUDE_CODE_OAUTH_SCOPES`.
-The last four aren't documented. Good for attribution, but a prompt-injected command
-inherits them too.
+The entrypoint, email and org UUID ones aren't documented, and the OAuth scopes one is only
+documented as something you set yourself for token login. Good for attribution, but a
+prompt-injected command inherits them too.
 
 Worth collecting:
 - `~/.claude/projects/<project>/<session>.jsonl` - every tool call and its output, plaintext
-- `~/.claude/history.jsonl` - every prompt with timestamp
-- terminal sessions are deleted after 30 days by default, Desktop/Cowork ones aren't
+- `~/.claude/history.jsonl` - every prompt with timestamp, not cleaned up by default
+- terminal sessions are deleted after 30 days by default, Desktop/Cowork ones are kept
+  unless `desktopSessionCleanupPeriodDays` is set
 - Desktop's files are under `AppData\Local\Packages\Claude_pzs8sxrjxfjjc\`, not `%APPDATA%`
 - `HKCU\SOFTWARE\Policies\ClaudeCode` is read when there's no admin policy, and users can
   write to it
